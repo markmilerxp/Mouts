@@ -2,6 +2,7 @@ using AutoMapper;
 using MediatR;
 using FluentValidation;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Logging;
 using Ambev.DeveloperEvaluation.Domain.Repositories;
 
 namespace Ambev.DeveloperEvaluation.Application.Sales.UpdateSale;
@@ -14,13 +15,15 @@ public class UpdateSaleHandler : IRequestHandler<UpdateSaleCommand, UpdateSaleRe
     private readonly ISaleReadRepository _saleReadRepository;
     private readonly IDistributedCache _cache;
     private readonly IMapper _mapper;
+    private readonly ILogger<UpdateSaleHandler> _logger;
 
-    public UpdateSaleHandler(ISaleRepository saleRepository, ISaleReadRepository saleReadRepository, IDistributedCache cache, IMapper mapper)
+    public UpdateSaleHandler(ISaleRepository saleRepository, ISaleReadRepository saleReadRepository, IDistributedCache cache, IMapper mapper, ILogger<UpdateSaleHandler> logger)
     {
         _saleRepository = saleRepository;
         _saleReadRepository = saleReadRepository;
         _cache = cache;
         _mapper = mapper;
+        _logger = logger;
     }
 
     public async Task<UpdateSaleResult> Handle(UpdateSaleCommand command, CancellationToken cancellationToken)
@@ -47,6 +50,8 @@ public class UpdateSaleHandler : IRequestHandler<UpdateSaleCommand, UpdateSaleRe
         var updated = await _saleRepository.UpdateAsync(sale, cancellationToken);
         await _saleReadRepository.UpsertAsync(updated, cancellationToken);
         await _cache.RemoveAsync(SaleCacheKeyPrefix + updated.Id, cancellationToken);
+
+        _logger.LogInformation("SaleModified: SaleId={SaleId}, SaleNumber={SaleNumber}", updated.Id, updated.SaleNumber);
 
         return _mapper.Map<UpdateSaleResult>(updated);
     }

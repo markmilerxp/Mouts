@@ -2,6 +2,7 @@ using AutoMapper;
 using MediatR;
 using FluentValidation;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Logging;
 using Ambev.DeveloperEvaluation.Domain.Repositories;
 
 namespace Ambev.DeveloperEvaluation.Application.Sales.CancelSale;
@@ -14,13 +15,15 @@ public class CancelSaleHandler : IRequestHandler<CancelSaleCommand, CancelSaleRe
     private readonly ISaleReadRepository _saleReadRepository;
     private readonly IDistributedCache _cache;
     private readonly IMapper _mapper;
+    private readonly ILogger<CancelSaleHandler> _logger;
 
-    public CancelSaleHandler(ISaleRepository saleRepository, ISaleReadRepository saleReadRepository, IDistributedCache cache, IMapper mapper)
+    public CancelSaleHandler(ISaleRepository saleRepository, ISaleReadRepository saleReadRepository, IDistributedCache cache, IMapper mapper, ILogger<CancelSaleHandler> logger)
     {
         _saleRepository = saleRepository;
         _saleReadRepository = saleReadRepository;
         _cache = cache;
         _mapper = mapper;
+        _logger = logger;
     }
 
     public async Task<CancelSaleResult> Handle(CancelSaleCommand command, CancellationToken cancellationToken)
@@ -39,6 +42,8 @@ public class CancelSaleHandler : IRequestHandler<CancelSaleCommand, CancelSaleRe
         var updated = await _saleRepository.UpdateAsync(sale, cancellationToken);
         await _saleReadRepository.UpsertAsync(updated, cancellationToken);
         await _cache.RemoveAsync(SaleCacheKeyPrefix + updated.Id, cancellationToken);
+
+        _logger.LogInformation("SaleCancelled: SaleId={SaleId}, SaleNumber={SaleNumber}", updated.Id, updated.SaleNumber);
 
         return _mapper.Map<CancelSaleResult>(updated);
     }
