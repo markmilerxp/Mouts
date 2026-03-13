@@ -19,6 +19,7 @@ public class InfrastructureModuleInitializer : IModuleInitializer
         // PostgreSQL — transactional write store
         builder.Services.AddScoped<DbContext>(provider => provider.GetRequiredService<DefaultContext>());
         builder.Services.AddScoped<IUserRepository, UserRepository>();
+        builder.Services.AddScoped<ISaleRepository, SaleRepository>();
 
         // MongoDB — denormalized read store
         var mongoConnectionString = configuration.GetConnectionString("MongoConnection")
