@@ -1,20 +1,25 @@
 using AutoMapper;
 using MediatR;
 using FluentValidation;
+using Microsoft.Extensions.Caching.Distributed;
 using Ambev.DeveloperEvaluation.Domain.Repositories;
 
 namespace Ambev.DeveloperEvaluation.Application.Sales.CancelSale;
 
 public class CancelSaleHandler : IRequestHandler<CancelSaleCommand, CancelSaleResult>
 {
+    private const string SaleCacheKeyPrefix = "Sale:";
+
     private readonly ISaleRepository _saleRepository;
     private readonly ISaleReadRepository _saleReadRepository;
+    private readonly IDistributedCache _cache;
     private readonly IMapper _mapper;
 
-    public CancelSaleHandler(ISaleRepository saleRepository, ISaleReadRepository saleReadRepository, IMapper mapper)
+    public CancelSaleHandler(ISaleRepository saleRepository, ISaleReadRepository saleReadRepository, IDistributedCache cache, IMapper mapper)
     {
         _saleRepository = saleRepository;
         _saleReadRepository = saleReadRepository;
+        _cache = cache;
         _mapper = mapper;
     }
 
@@ -33,6 +38,7 @@ public class CancelSaleHandler : IRequestHandler<CancelSaleCommand, CancelSaleRe
 
         var updated = await _saleRepository.UpdateAsync(sale, cancellationToken);
         await _saleReadRepository.UpsertAsync(updated, cancellationToken);
+        await _cache.RemoveAsync(SaleCacheKeyPrefix + updated.Id, cancellationToken);
 
         return _mapper.Map<CancelSaleResult>(updated);
     }
