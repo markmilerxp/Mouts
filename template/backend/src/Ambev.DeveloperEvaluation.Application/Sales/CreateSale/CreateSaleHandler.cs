@@ -2,6 +2,7 @@ using AutoMapper;
 using MediatR;
 using FluentValidation;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Logging;
 using Ambev.DeveloperEvaluation.Domain.Entities;
 using Ambev.DeveloperEvaluation.Domain.Repositories;
 
@@ -15,13 +16,15 @@ public class CreateSaleHandler : IRequestHandler<CreateSaleCommand, CreateSaleRe
     private readonly ISaleReadRepository _saleReadRepository;
     private readonly IDistributedCache _cache;
     private readonly IMapper _mapper;
+    private readonly ILogger<CreateSaleHandler> _logger;
 
-    public CreateSaleHandler(ISaleRepository saleRepository, ISaleReadRepository saleReadRepository, IDistributedCache cache, IMapper mapper)
+    public CreateSaleHandler(ISaleRepository saleRepository, ISaleReadRepository saleReadRepository, IDistributedCache cache, IMapper mapper, ILogger<CreateSaleHandler> logger)
     {
         _saleRepository = saleRepository;
         _saleReadRepository = saleReadRepository;
         _cache = cache;
         _mapper = mapper;
+        _logger = logger;
     }
 
     public async Task<CreateSaleResult> Handle(CreateSaleCommand command, CancellationToken cancellationToken)
@@ -48,6 +51,8 @@ public class CreateSaleHandler : IRequestHandler<CreateSaleCommand, CreateSaleRe
         var created = await _saleRepository.CreateAsync(sale, cancellationToken);
         await _saleReadRepository.UpsertAsync(created, cancellationToken);
         await _cache.RemoveAsync(SaleCacheKeyPrefix + created.Id, cancellationToken);
+
+        _logger.LogInformation("SaleCreated: SaleId={SaleId}, SaleNumber={SaleNumber}", created.Id, created.SaleNumber);
 
         return _mapper.Map<CreateSaleResult>(created);
     }
