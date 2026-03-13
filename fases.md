@@ -191,7 +191,72 @@ Quatro eventos criados para publicação via log (sem Message Broker, conforme R
 
 ## FASE 3 — ORM Layer (PostgreSQL — Escrita)
 
-> Aguardando Fase 1.
+**Branch:** `feature/sales-orm`
+**Objetivo:** Mapear as entidades do domínio para o banco relacional PostgreSQL via EF Core, implementar o repositório de escrita e gerar a migration.
+
+---
+
+### O que foi feito
+
+#### 1. SaleConfiguration e SaleItemConfiguration
+Mapeamentos Fluent API para as entidades do domínio:
+
+- `SaleConfiguration` — mapeia `Sale` para a tabela `Sales`:
+  - `SaleStatus` convertido para string com `HasConversion<string>()` (padrão do template)
+  - Relação 1:N com `SaleItem` configurada como `HasMany / WithOne` com `OnDelete(Cascade)`
+  - `TotalAmount` com precisão decimal `(18, 2)`
+  - `SaleNumber` indexado como único (`HasIndex(...).IsUnique()`)
+
+- `SaleItemConfiguration` — mapeia `SaleItem` para a tabela `SaleItems`:
+  - `UnitPrice`, `Discount` e `TotalAmount` com precisão `(18, 2)`
+  - `ProductName` limitado a 500 caracteres
+  - `SaleId` como foreign key
+
+#### 2. DefaultContext
+- `DbSet<Sale> Sales` e `DbSet<SaleItem> SaleItems` adicionados ao contexto
+- `MigrationsAssembly` corrigido de `WebApi` para `ORM` no `YourDbContextFactory`
+
+#### 3. SaleRepository
+Implementação de `ISaleRepository` usando EF Core:
+- `CreateAsync` — adiciona e salva
+- `GetByIdAsync` — `Include(s => s.Items)` para carregar os itens junto
+- `UpdateAsync` — `Update` + `SaveChanges`
+- `DeleteAsync` — busca por id, remove e salva
+
+#### 4. IoC — registro de ISaleRepository
+`ISaleRepository` registrado como `Scoped` em `InfrastructureModuleInitializer`.
+
+#### 5. Migration EF Core
+Migration `AddSalesAndSaleItems` gerada automaticamente com `dotnet ef migrations add`. Cria as tabelas `Sales` e `SaleItems` com todos os campos, constraints e foreign keys.
+
+---
+
+### Arquivos modificados / criados
+
+| Arquivo | Tipo |
+|---|---|
+| `ORM/Mapping/SaleConfiguration.cs` | Criado |
+| `ORM/Mapping/SaleItemConfiguration.cs` | Criado |
+| `ORM/DefaultContext.cs` | Modificado |
+| `ORM/Repositories/SaleRepository.cs` | Criado |
+| `IoC/ModuleInitializers/InfrastructureModuleInitializer.cs` | Modificado |
+| `ORM/Migrations/..._AddSalesAndSaleItems.cs` | Criado (gerado) |
+| `ORM/Migrations/..._AddSalesAndSaleItems.Designer.cs` | Criado (gerado) |
+
+---
+
+### Commits da fase
+
+| Hash | Tipo | Descrição |
+|---|---|---|
+| `c02af54` | `feat(orm)` | Add SaleConfiguration EF Core mapping for Sales table |
+| `a9e36aa` | `feat(orm)` | Add SaleItemConfiguration EF Core mapping for SaleItems table |
+| `fefb8e1` | `feat(orm)` | Add DbSet Sales and SaleItems to DefaultContext |
+| `541d981` | `feat(orm)` | Implement SaleRepository with EF Core |
+| `4268d1a` | `feat(ioc)` | Register ISaleRepository in DI container |
+| `6f168eb` | `feat(orm)` | Add EF Core migration for Sales and SaleItems tables |
+
+---
 
 ---
 
