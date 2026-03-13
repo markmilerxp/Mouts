@@ -9,11 +9,13 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.CreateSale;
 public class CreateSaleHandler : IRequestHandler<CreateSaleCommand, CreateSaleResult>
 {
     private readonly ISaleRepository _saleRepository;
+    private readonly ISaleReadRepository _saleReadRepository;
     private readonly IMapper _mapper;
 
-    public CreateSaleHandler(ISaleRepository saleRepository, IMapper mapper)
+    public CreateSaleHandler(ISaleRepository saleRepository, ISaleReadRepository saleReadRepository, IMapper mapper)
     {
         _saleRepository = saleRepository;
+        _saleReadRepository = saleReadRepository;
         _mapper = mapper;
     }
 
@@ -39,6 +41,8 @@ public class CreateSaleHandler : IRequestHandler<CreateSaleCommand, CreateSaleRe
             sale.AddItem(item.ProductId, item.ProductName, item.Quantity, item.UnitPrice);
 
         var created = await _saleRepository.CreateAsync(sale, cancellationToken);
+        await _saleReadRepository.UpsertAsync(created, cancellationToken);
+
         return _mapper.Map<CreateSaleResult>(created);
     }
 }
