@@ -94,7 +94,92 @@ O que foi feito:
 
 ## FASE 1 — Domain Layer
 
-> Em desenvolvimento...
+**Branch:** `feature/sales-domain`
+**Mergeada em:** `develop`
+**Objetivo:** Implementar todo o modelo de domínio de vendas seguindo DDD — entidades, regras de negócio, validators, interfaces de repositório e eventos.
+
+---
+
+### O que foi feito
+
+#### 1. SaleStatus enum
+Enum com sentinela `Unknown = 0` (padrão do template), `Active = 1` e `Cancelled = 2`.
+O validator rejeita o valor `Unknown` — garantia de que o status sempre foi explicitamente definido.
+
+#### 2. SaleItem entity + SaleItemValidator
+`SaleItem` representa um item individual da venda. Campos:
+- `ProductId` + `ProductName` — External Identity pattern (produto pertence a outro domínio)
+- `Quantity`, `UnitPrice`, `Discount`, `TotalAmount`, `IsCancelled`
+
+Método `ApplyDiscount()` encapsula as regras de negócio de desconto:
+- **< 4 itens** → sem desconto
+- **4 a 9 itens** → 10% de desconto
+- **10 a 20 itens** → 20% de desconto
+- **> 20 itens** → lança `DomainException`
+
+`SaleItemValidator` valida via FluentValidation: quantidade entre 1 e 20, preço positivo, campos obrigatórios.
+
+#### 3. Sale aggregate root + SaleValidator
+`Sale` é o agregado raiz do domínio de vendas. Campos principais:
+- `SaleNumber`, `SaleDate`
+- `CustomerId` + `CustomerName` — External Identity
+- `BranchId` + `BranchName` — External Identity
+- `TotalAmount` (calculado, private setter), `Status`, `CreatedAt`, `UpdatedAt`
+- `Items` como `IReadOnlyList<SaleItem>` — encapsulamento via lista privada
+
+Métodos de domínio:
+- `AddItem(productId, productName, quantity, unitPrice)` — cria item, aplica desconto, recalcula total
+- `UpdateItem(itemId, quantity, unitPrice)` — atualiza item existente, recalcula
+- `Cancel()` — muda status para `Cancelled`, lança exceção se já cancelada
+- `CancelItem(itemId)` — cancela item específico, recalcula total
+- `Recalculate()` — soma `TotalAmount` dos itens não cancelados
+
+`SaleValidator` valida todos os campos obrigatórios e delega a validação de cada item ao `SaleItemValidator` via `RuleForEach`.
+
+#### 4. Interfaces dos repositórios
+`ISaleRepository` (escrita — PostgreSQL via EF Core):
+- `CreateAsync`, `GetByIdAsync`, `UpdateAsync`, `DeleteAsync`
+
+`ISaleReadRepository` (leitura — MongoDB):
+- `UpsertAsync`, `GetByIdAsync`, `DeleteAsync`
+- `GetPagedAsync(page, size, order, filters)` — suporta paginação, ordenação e filtros conforme `general-api.md`
+
+#### 5. Eventos de domínio
+Quatro eventos criados para publicação via log (sem Message Broker, conforme README):
+- `SaleCreatedEvent` — carrega a entidade `Sale` completa
+- `SaleModifiedEvent` — carrega a entidade `Sale` atualizada
+- `SaleCancelledEvent` — carrega `SaleId` e `SaleNumber`
+- `ItemCancelledEvent` — carrega `SaleId`, `SaleNumber` e `ItemId`
+
+---
+
+### Arquivos criados
+
+| Arquivo | Descrição |
+|---|---|
+| `Domain/Enums/SaleStatus.cs` | Enum com Unknown/Active/Cancelled |
+| `Domain/Entities/SaleItem.cs` | Entidade item com regras de desconto |
+| `Domain/Validation/SaleItemValidator.cs` | Validator FluentValidation para SaleItem |
+| `Domain/Entities/Sale.cs` | Agregado raiz com todos os métodos de domínio |
+| `Domain/Validation/SaleValidator.cs` | Validator FluentValidation para Sale |
+| `Domain/Repositories/ISaleRepository.cs` | Interface escrita (PostgreSQL) |
+| `Domain/Repositories/ISaleReadRepository.cs` | Interface leitura (MongoDB) com paginação |
+| `Domain/Events/SaleCreatedEvent.cs` | Evento de criação |
+| `Domain/Events/SaleModifiedEvent.cs` | Evento de modificação |
+| `Domain/Events/SaleCancelledEvent.cs` | Evento de cancelamento de venda |
+| `Domain/Events/ItemCancelledEvent.cs` | Evento de cancelamento de item |
+
+---
+
+### Commits da fase
+
+| Hash | Tipo | Descrição |
+|---|---|---|
+| `befd56b` | `feat(domain)` | Add SaleStatus enum with Unknown sentinel value |
+| `c782921` | `feat(domain)` | Add SaleItem entity with quantity-based discount business rules |
+| `773a194` | `feat(domain)` | Add Sale aggregate root with AddItem, Cancel, CancelItem and Recalculate methods |
+| `46037b9` | `feat(domain)` | Add ISaleRepository and ISaleReadRepository interfaces with pagination support |
+| `da75ae2` | `feat(domain)` | Add SaleCreated, SaleModified, SaleCancelled and ItemCancelled domain events |
 
 ---
 
