@@ -7,10 +7,12 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.CancelSaleItem;
 public class CancelSaleItemHandler : IRequestHandler<CancelSaleItemCommand, CancelSaleItemResult>
 {
     private readonly ISaleRepository _saleRepository;
+    private readonly ISaleReadRepository _saleReadRepository;
 
-    public CancelSaleItemHandler(ISaleRepository saleRepository)
+    public CancelSaleItemHandler(ISaleRepository saleRepository, ISaleReadRepository saleReadRepository)
     {
         _saleRepository = saleRepository;
+        _saleReadRepository = saleReadRepository;
     }
 
     public async Task<CancelSaleItemResult> Handle(CancelSaleItemCommand command, CancellationToken cancellationToken)
@@ -27,6 +29,7 @@ public class CancelSaleItemHandler : IRequestHandler<CancelSaleItemCommand, Canc
         sale.CancelItem(command.ItemId);
 
         await _saleRepository.UpdateAsync(sale, cancellationToken);
+        await _saleReadRepository.UpsertAsync(sale, cancellationToken);
 
         return new CancelSaleItemResult
         {
