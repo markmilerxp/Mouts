@@ -8,11 +8,13 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.UpdateSale;
 public class UpdateSaleHandler : IRequestHandler<UpdateSaleCommand, UpdateSaleResult>
 {
     private readonly ISaleRepository _saleRepository;
+    private readonly ISaleReadRepository _saleReadRepository;
     private readonly IMapper _mapper;
 
-    public UpdateSaleHandler(ISaleRepository saleRepository, IMapper mapper)
+    public UpdateSaleHandler(ISaleRepository saleRepository, ISaleReadRepository saleReadRepository, IMapper mapper)
     {
         _saleRepository = saleRepository;
+        _saleReadRepository = saleReadRepository;
         _mapper = mapper;
     }
 
@@ -38,6 +40,8 @@ public class UpdateSaleHandler : IRequestHandler<UpdateSaleCommand, UpdateSaleRe
             sale.AddItem(item.ProductId, item.ProductName, item.Quantity, item.UnitPrice);
 
         var updated = await _saleRepository.UpdateAsync(sale, cancellationToken);
+        await _saleReadRepository.UpsertAsync(updated, cancellationToken);
+
         return _mapper.Map<UpdateSaleResult>(updated);
     }
 }
