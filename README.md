@@ -11,8 +11,6 @@
 - The repository must provide instructions on how to configure, execute and test the project
 - Documentation and overall organization will also be taken into consideration
 
-**→ [Instruções para configurar, executar e testar o projeto](.doc/setup-and-test.md)**
-
 ## Use Case
 **You are a developer on the DeveloperStore team. Now we need to implement the API prototypes.**
 
