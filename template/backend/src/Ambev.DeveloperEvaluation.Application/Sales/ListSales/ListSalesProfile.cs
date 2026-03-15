@@ -7,6 +7,8 @@ public class ListSalesProfile : Profile
 {
     public ListSalesProfile()
     {
-        CreateMap<Sale, ListSaleItemResult>();
+        CreateMap<SaleItem, ListSaleLineItemResult>();
+        CreateMap<Sale, ListSaleItemResult>()
+            .ForMember(d => d.Items, o => o.MapFrom(s => s.Items));
     }
 }
