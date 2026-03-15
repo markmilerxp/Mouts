@@ -1,6 +1,7 @@
 using MediatR;
 using FluentValidation;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Logging;
 using Ambev.DeveloperEvaluation.Domain.Repositories;
 
 namespace Ambev.DeveloperEvaluation.Application.Sales.CancelSaleItem;
@@ -12,12 +13,14 @@ public class CancelSaleItemHandler : IRequestHandler<CancelSaleItemCommand, Canc
     private readonly ISaleRepository _saleRepository;
     private readonly ISaleReadRepository _saleReadRepository;
     private readonly IDistributedCache _cache;
+    private readonly ILogger<CancelSaleItemHandler> _logger;
 
-    public CancelSaleItemHandler(ISaleRepository saleRepository, ISaleReadRepository saleReadRepository, IDistributedCache cache)
+    public CancelSaleItemHandler(ISaleRepository saleRepository, ISaleReadRepository saleReadRepository, IDistributedCache cache, ILogger<CancelSaleItemHandler> logger)
     {
         _saleRepository = saleRepository;
         _saleReadRepository = saleReadRepository;
         _cache = cache;
+        _logger = logger;
     }
 
     public async Task<CancelSaleItemResult> Handle(CancelSaleItemCommand command, CancellationToken cancellationToken)
@@ -36,6 +39,8 @@ public class CancelSaleItemHandler : IRequestHandler<CancelSaleItemCommand, Canc
         await _saleRepository.UpdateAsync(sale, cancellationToken);
         await _saleReadRepository.UpsertAsync(sale, cancellationToken);
         await _cache.RemoveAsync(SaleCacheKeyPrefix + sale.Id, cancellationToken);
+
+        _logger.LogInformation("ItemCancelled: SaleId={SaleId}, ItemId={ItemId}", sale.Id, command.ItemId);
 
         return new CancelSaleItemResult
         {
