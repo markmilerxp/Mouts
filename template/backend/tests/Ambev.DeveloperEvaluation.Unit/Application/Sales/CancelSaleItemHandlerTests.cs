@@ -3,6 +3,7 @@ using Ambev.DeveloperEvaluation.Domain.Entities;
 using Ambev.DeveloperEvaluation.Domain.Repositories;
 using FluentAssertions;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Xunit;
 
@@ -13,6 +14,7 @@ public class CancelSaleItemHandlerTests
     private readonly ISaleRepository _saleRepository;
     private readonly ISaleReadRepository _saleReadRepository;
     private readonly IDistributedCache _cache;
+    private readonly ILogger<CancelSaleItemHandler> _logger;
     private readonly CancelSaleItemHandler _handler;
 
     public CancelSaleItemHandlerTests()
@@ -20,7 +22,8 @@ public class CancelSaleItemHandlerTests
         _saleRepository = Substitute.For<ISaleRepository>();
         _saleReadRepository = Substitute.For<ISaleReadRepository>();
         _cache = Substitute.For<IDistributedCache>();
-        _handler = new CancelSaleItemHandler(_saleRepository, _saleReadRepository, _cache);
+        _logger = Substitute.For<ILogger<CancelSaleItemHandler>>();
+        _handler = new CancelSaleItemHandler(_saleRepository, _saleReadRepository, _cache, _logger);
     }
 
     [Fact(DisplayName = "Given valid sale and item id When Handle Then cancels item and returns result")]
@@ -29,6 +32,7 @@ public class CancelSaleItemHandlerTests
         var saleId = Guid.NewGuid();
         var sale = new Sale { Id = saleId };
         var item = sale.AddItem(Guid.NewGuid(), "Product", 2, 10m);
+        item.Id = Guid.NewGuid();
         var command = new CancelSaleItemCommand { SaleId = saleId, ItemId = item.Id };
         _saleRepository.GetByIdAsync(saleId, Arg.Any<CancellationToken>()).Returns(sale);
         _saleRepository.UpdateAsync(Arg.Any<Sale>(), Arg.Any<CancellationToken>()).Returns(sale);

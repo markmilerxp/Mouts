@@ -3,6 +3,7 @@ using Ambev.DeveloperEvaluation.Domain.Entities;
 using Ambev.DeveloperEvaluation.Domain.Repositories;
 using FluentAssertions;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Xunit;
 
@@ -14,6 +15,7 @@ public class CreateSaleHandlerTests
     private readonly ISaleReadRepository _saleReadRepository;
     private readonly IDistributedCache _cache;
     private readonly AutoMapper.IMapper _mapper;
+    private readonly ILogger<CreateSaleHandler> _logger;
     private readonly CreateSaleHandler _handler;
 
     public CreateSaleHandlerTests()
@@ -22,7 +24,8 @@ public class CreateSaleHandlerTests
         _saleReadRepository = Substitute.For<ISaleReadRepository>();
         _cache = Substitute.For<IDistributedCache>();
         _mapper = Substitute.For<AutoMapper.IMapper>();
-        _handler = new CreateSaleHandler(_saleRepository, _saleReadRepository, _cache, _mapper);
+        _logger = Substitute.For<ILogger<CreateSaleHandler>>();
+        _handler = new CreateSaleHandler(_saleRepository, _saleReadRepository, _cache, _mapper, _logger);
     }
 
     [Fact(DisplayName = "Given valid command When Handle Then creates sale and returns result")]
