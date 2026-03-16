@@ -164,3 +164,31 @@ Essa abordagem segue a recomendação da propriedade `GenerateDocumentationFile`
 
 Durante a implementação, foram usados como referência alguns modelos e padrões de classes já consolidados em cursos e treinamentos de DDD. Isso acelerou a aplicação dos padrões arquiteturais em cada arquivo, sempre adaptando o conteúdo para a especificação deste projeto. A experiência prévia com .NET e arquitetura também contribuiu para maior velocidade e consistência técnica.
 
+---
+
+## Stack e ferramentas usadas
+
+### Backend e arquitetura
+
+- .NET 8 / ASP.NET Core Web API
+- DDD (Domain-Driven Design)
+- CQRS + MediatR
+- AutoMapper
+- FluentValidation
+- ILogger (logs de eventos de venda)
+
+### Persistência e dados
+
+- Entity Framework Core + PostgreSQL (write model)
+- MongoDB (`MongoDB.Driver`) para read model
+- Redis (`IDistributedCache`) para cache de leitura
+
+### Testes e qualidade
+
+- xUnit
+- NSubstitute
+- FluentAssertions
+- Bogus (dados fake para testes)
+- Coverlet + ReportGenerator
+- `coverage-report` do cliente (`coverage-report.bat` / `coverage-report.sh`)
+
