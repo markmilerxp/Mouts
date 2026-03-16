@@ -115,8 +115,6 @@ Nos testes unitários usamos a biblioteca **Bogus** para gerar dados fake de for
 
 Essa abordagem facilita a manutenção dos testes e reduz duplicação de setup.
 
-Referência utilizada para a abordagem com Bogus: [Bogus: Gerando dados fake para testes em C#](https://nextwave.education/bogus-gerando-dados-fake-para-testes-em-c/).
-
 ---
 
 ## Gerar documentação XML (summaries)
@@ -160,9 +158,11 @@ Essa abordagem segue a recomendação da propriedade `GenerateDocumentationFile`
 
 ---
 
-## Nota de desenvolvimento
+## Nota do Desenvolvedor
 
-Durante a implementação, foram usados como referência alguns modelos e padrões de classes já consolidados em cursos e treinamentos de DDD. Isso acelerou a aplicação dos padrões arquiteturais em cada arquivo, sempre adaptando o conteúdo para a especificação deste projeto. A experiência prévia com .NET e arquitetura também contribuiu para maior velocidade e consistência técnica.
+- Durante a implementação, foram usados como referência alguns modelos e padrões de classes já consolidados em cursos e treinamentos de DDD que fiz durante minha carreira. 
+- Isso acelerou a aplicação dos padrões arquiteturais em cada arquivo, sempre adaptando o conteúdo para a especificação deste projeto. 
+- A experiência prévia com .NET e arquitetura também contribuiu para maior velocidade e consistência técnica.
 
 ---
 
