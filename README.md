@@ -11,6 +11,10 @@
 - The repository must provide instructions on how to configure, execute and test the project
 - Documentation and overall organization will also be taken into consideration
 
+**→ See [Setup and Test Guide](/.doc/setup-and-test.md) for how to configure, run and test the project.**
+- Tests use the .NET testing boilerplate together with Bogus for fake and reusable test data setup.
+- XML docs are generated at build time via `GenerateDocumentationFile`.
+
 ## Use Case
 **You are a developer on the DeveloperStore team. Now we need to implement the API prototypes.**
 
