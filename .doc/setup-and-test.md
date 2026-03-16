@@ -115,7 +115,6 @@ Nos testes unitários usamos o boilerplate de testes do **.NET** em conjunto com
 
 Essa abordagem facilita a manutenção dos testes e reduz duplicação de setup.
 
-Referência utilizada para a abordagem com boilerplate .NET + Bogus: [Bogus: Gerando dados fake para testes em C#](https://nextwave.education/bogus-gerando-dados-fake-para-testes-em-c/).
 ---
 
 ## Gerar documentação XML (summaries)
