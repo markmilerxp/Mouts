@@ -1,4 +1,4 @@
-[# Developer Evaluation Project – Setup e Testes](../README.md)
+[Voltar ao README](../README.md)
 
 ## Como configurar, executar e testar o projeto
 
@@ -97,6 +97,56 @@ Para rodar apenas os testes relacionados a Sales:
 dotnet test tests/Ambev.DeveloperEvaluation.Unit/Ambev.DeveloperEvaluation.Unit.csproj --filter "FullyQualifiedName~Sales"
 ```
 
+Para acompanhar os resultados e apoiar a evolução da cobertura, usamos também o `coverage-report` disponibilizado pelo cliente no projeto (`coverage-report.bat`/`coverage-report.sh`).
+
+---
+
+## Dados fake para testes (Bogus)
+
+Nos testes unitários usamos a biblioteca **Bogus** para gerar dados fake de forma consistente e realista, evitando massa de teste manual fixa.
+
+### Como aplicamos no projeto
+
+- Helper central de dados para Sales: `tests/Ambev.DeveloperEvaluation.Unit/Application/Sales/SalesHandlerTestData.cs`
+- Geração de comandos válidos para cenários de teste:
+  - `CreateValidCreateCommand(...)`
+  - `CreateValidUpdateCommand(...)`
+- Uso principal: montar payloads com produtos, quantidades, preços e dados de cliente/filial para testes dos handlers.
+
+Essa abordagem facilita a manutenção dos testes e reduz duplicação de setup.
+
+Referência utilizada para a abordagem com Bogus: [Bogus: Gerando dados fake para testes em C#](https://nextwave.education/bogus-gerando-dados-fake-para-testes-em-c/).
+
+---
+
+## Gerar documentação XML (summaries)
+
+Além da execução da API e dos testes, o projeto está configurado para gerar documentação XML a partir dos comentários `/// summary` durante o build.
+
+### Como está configurado
+
+- Configuração central em `template/backend/Directory.Build.props`.
+- Propriedade usada: `GenerateDocumentationFile=true` para projetos não teste.
+- Isso faz o compilador gerar o arquivo XML da documentação para cada assembly.
+
+### Como gerar
+
+Na pasta `template/backend`:
+
+```bash
+dotnet build Ambev.DeveloperEvaluation.sln --no-restore
+```
+
+### Onde os arquivos são gerados
+
+Os arquivos `.xml` ficam ao lado dos `.dll` em cada projeto compilado, por exemplo:
+
+- `src/Ambev.DeveloperEvaluation.Application/bin/Debug/net8.0/Ambev.DeveloperEvaluation.Application.xml`
+- `src/Ambev.DeveloperEvaluation.Domain/bin/Debug/net8.0/Ambev.DeveloperEvaluation.Domain.xml`
+- `src/Ambev.DeveloperEvaluation.WebApi/bin/Debug/net8.0/Ambev.DeveloperEvaluation.WebApi.xml`
+
+Essa abordagem segue a recomendação da propriedade `GenerateDocumentationFile` do SDK .NET.
+
 ---
 
 ## Resumo rápido
@@ -106,4 +156,11 @@ dotnet test tests/Ambev.DeveloperEvaluation.Unit/Ambev.DeveloperEvaluation.Unit.
 | Subir tudo | `docker compose up --build`                                                              |
 | Swagger    | `http://localhost:8080/swagger`                                                          |
 | Testes     | `dotnet test tests/Ambev.DeveloperEvaluation.Unit/Ambev.DeveloperEvaluation.Unit.csproj` |
+| Doc XML    | `dotnet build Ambev.DeveloperEvaluation.sln --no-restore`                               |
+
+---
+
+## Nota de desenvolvimento
+
+Durante a implementação, foram usados como referência alguns modelos e padrões de classes já consolidados em cursos e treinamentos de DDD. Isso acelerou a aplicação dos padrões arquiteturais em cada arquivo, sempre adaptando o conteúdo para a especificação deste projeto. A experiência prévia com .NET e arquitetura também contribuiu para maior velocidade e consistência técnica.
 

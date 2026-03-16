@@ -1,0 +1,8 @@
+<Project>
+  <PropertyGroup Condition="'$(IsTestProject)' != 'true'">
+    <!-- Generate XML documentation files from /// summaries -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!-- Keep XML doc generation enabled while suppressing documentation warning noise -->
+    <NoWarn>$(NoWarn);1591;1572;1573;1574;NU1903</NoWarn>
+  </PropertyGroup>
+</Project>
