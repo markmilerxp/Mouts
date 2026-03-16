@@ -101,9 +101,9 @@ Para acompanhar os resultados e apoiar a evolução da cobertura, usamos também
 
 ---
 
-## Dados fake para testes (Bogus)
+## Dados fake para testes (boilerplate .NET + Bogus)
 
-Nos testes unitários usamos a biblioteca **Bogus** para gerar dados fake de forma consistente e realista, evitando massa de teste manual fixa.
+Nos testes unitários usamos o boilerplate de testes do **.NET** em conjunto com a biblioteca **Bogus** para gerar dados fake de forma consistente e realista, evitando massa de teste manual fixa.
 
 ### Como aplicamos no projeto
 
@@ -115,6 +115,7 @@ Nos testes unitários usamos a biblioteca **Bogus** para gerar dados fake de for
 
 Essa abordagem facilita a manutenção dos testes e reduz duplicação de setup.
 
+Referência utilizada para a abordagem com boilerplate .NET + Bogus: [Bogus: Gerando dados fake para testes em C#](https://nextwave.education/bogus-gerando-dados-fake-para-testes-em-c/).
 ---
 
 ## Gerar documentação XML (summaries)
@@ -188,7 +189,7 @@ Essa abordagem segue a recomendação da propriedade `GenerateDocumentationFile`
 - xUnit
 - NSubstitute
 - FluentAssertions
-- Bogus (dados fake para testes)
+- Boilerplate de testes do .NET combinado com Bogus (dados fake para testes)
 - Coverlet + ReportGenerator
 - `coverage-report` do cliente (`coverage-report.bat` / `coverage-report.sh`)
 

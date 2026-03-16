@@ -12,7 +12,7 @@
 - Documentation and overall organization will also be taken into consideration
 
 **→ See [Setup and Test Guide](/.doc/setup-and-test.md) for how to configure, run and test the project.**
-- Tests use Bogus for fake and reusable test data setup.
+- Tests use the .NET testing boilerplate together with Bogus for fake and reusable test data setup.
 - XML docs are generated at build time via `GenerateDocumentationFile`.
 
 ## Use Case
