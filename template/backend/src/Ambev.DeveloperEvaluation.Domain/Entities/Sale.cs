@@ -30,7 +30,7 @@ public class Sale : BaseEntity
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; private set; }
 
-    private readonly List<SaleItem> _items = new();
+    private List<SaleItem> _items = new();
     public IReadOnlyList<SaleItem> Items => _items.AsReadOnly();
 
     public Sale()
