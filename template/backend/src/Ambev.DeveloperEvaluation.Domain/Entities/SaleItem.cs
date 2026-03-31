@@ -11,7 +11,7 @@ public class SaleItem : BaseEntity
     public Guid SaleId { get; set; }
 
     // External Identity pattern: product belongs to another domain
-    public Guid ProductId { get; set; }
+    public Guid ProductId {  get; private set; }
     public string ProductName { get; set; } = string.Empty;
 
     public int Quantity { get; set; }
